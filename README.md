@@ -32,15 +32,15 @@ gradle build
 
 
 ### 개발계획
-* 1주차
-api 스펙, model 작성
+[1주차]
+- api 스펙, model 작성
 
-* 2주차
+[2주차]
 - 회원 등록, 조회, 삭제 기능 개발
 - Google Auth2 연동
 
-* 3주차
+[3주차]
 - 질병관리청, 통계청 api 연동
 
-* 4주차
+[4주차]
 - 질병관리청, 통계청 정보 기준으로 alert 기능 제공(email or kakaotalk 메시지)
