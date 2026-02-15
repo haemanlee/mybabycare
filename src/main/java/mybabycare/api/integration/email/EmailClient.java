@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
@@ -26,11 +27,16 @@ public class EmailClient {
         EmailApiRequest payload = new EmailApiRequest(properties.sender(), request.to(), request.subject(), request.body());
         HttpEntity<EmailApiRequest> entity = new HttpEntity<>(payload, headers);
 
-        ResponseEntity<EmailApiResponse> response = restTemplate.postForEntity(
-                properties.baseUrl() + "/v1/messages",
-                entity,
-                EmailApiResponse.class
-        );
+        ResponseEntity<EmailApiResponse> response;
+        try {
+            response = restTemplate.postForEntity(
+                    properties.baseUrl() + "/v1/messages",
+                    entity,
+                    EmailApiResponse.class
+            );
+        } catch (RestClientException exception) {
+            return new EmailSendResult(false, null, "request_failed:" + exception.getClass().getSimpleName());
+        }
 
         EmailApiResponse body = response.getBody();
         if (body == null) {

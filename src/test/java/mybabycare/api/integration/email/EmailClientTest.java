@@ -31,4 +31,22 @@ class EmailClientTest {
         assertThat(result.requestId()).isEqualTo("req-1");
         server.verify();
     }
+
+    @Test
+    void sendEmailWhenRequestFails() {
+        RestTemplate restTemplate = new RestTemplate();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
+        EmailClient client = new EmailClient(restTemplate, new EmailProperties("https://mail.example.com", "api-key", "from@example.com"));
+
+        server.expect(requestTo("https://mail.example.com/v1/messages"))
+                .andExpect(method(POST))
+                .andRespond(org.springframework.test.web.client.response.MockRestResponseCreators.withServerError());
+
+        EmailSendResult result = client.send(new EmailSendRequest("to@example.com", "subject", "body"));
+
+        assertThat(result.success()).isFalse();
+        assertThat(result.errorMessage()).startsWith("request_failed:");
+        server.verify();
+    }
+
 }
