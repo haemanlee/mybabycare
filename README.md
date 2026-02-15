@@ -1,46 +1,35 @@
-# MyBabyCare
-MyBabyCare 서비스 프로젝트입니다.
+# 우리아기 API
 
-## Architecture
-MyBabyCare 프로젝트의 아키텍쳐 입니다.
+### 관련 기술
 
-MyBabyCare 서비스는 다음 기능을 제공합니다.
-* 부모, 자녀 데이터 저장 및 조회
-* 자녀 데이터 기반 예방점종 정보 데이터 제공
-* 자녀 데이터 기반 발달정보 데이터 제공
-* 예방접종 기간 도달 시 Webhook & Email 전송 제공
+- Spring Boot 2.6.4
+- Java 24
+- Gradle
 
-## API Specification
-MyBabyCare 는 Rest API를 제공합니다. 
-개발중인 API 명세는 개발계 MyBabyCare API 서비스가 제공합니다. 명세 확인은 다음 URL에서 확인할 수 있습니다.
-* http://localhost:8080/docs
+### 패키지 구조(뼈대)
 
-## Development
-
-### 개발 환경 준비
-* Java 11 버전을 사용합니다.
-* IDE는 개인이 익숙한 개발 도구(VS Code, IntelliJ)를 선택합니다.
-
-### 빌드
-```bash
-gradle build
+```
+mybabycare.api
+├── child
+│   ├── controller
+│   ├── dto
+│   └── service
+└── parent
+    ├── controller
+    ├── dto
+    └── service
 ```
 
-### 프로세스로 로컬 실행
-환경 변수 설정
-실행
+### API 경로
 
+- `GET /v1/children`
+- `POST /v1/children`
+- `GET /v1/children/{childId}`
+- `PATCH /v1/children/{childId}`
+- `DELETE /v1/children/{childId}`
 
-### 개발계획
-[1주차]
-- api 스펙, model 작성
-
-[2주차]
-- 회원 등록, 조회, 삭제 기능 개발
-- Google Auth2 연동
-
-[3주차]
-- 질병관리청, 통계청 api 연동
-
-[4주차]
-- 질병관리청, 통계청 정보 기준으로 alert 기능 제공(email or kakaotalk 메시지)
+- `GET /v1/parents`
+- `POST /v1/parents`
+- `GET /v1/parents/{parentId}`
+- `PATCH /v1/parents/{parentId}`
+- `DELETE /v1/parents/{parentId}`
