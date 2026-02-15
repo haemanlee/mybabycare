@@ -79,6 +79,28 @@ class VaccinationApiClientTest {
         server.verify();
     }
 
+
+    @Test
+    void getVaccinationPeriods_throwsWhenResponseJsonIsMalformed() {
+        RestTemplate restTemplate = new RestTemplate();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
+        VaccinationApiClient client = new VaccinationApiClient(
+                restTemplate,
+                new VaccinationApiProperties("https://public.example.com", "service-key", "/openapi/service/rest/ChildVaccsService/getChildVaccsList", 50),
+                new ObjectMapper()
+        );
+
+        server.expect(requestTo("https://public.example.com/openapi/service/rest/ChildVaccsService/getChildVaccsList?serviceKey=service-key&birth=2024-01-15&numOfRows=50&type=json"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("{", MediaType.APPLICATION_JSON));
+
+        assertThatThrownBy(() -> client.getVaccinationPeriods(LocalDate.of(2024, 1, 15)))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Failed to parse vaccination api response");
+
+        server.verify();
+    }
+
     @Test
     void getVaccinationPeriods_skipsMalformedItemAndReturnsValidItems() {
         RestTemplate restTemplate = new RestTemplate();

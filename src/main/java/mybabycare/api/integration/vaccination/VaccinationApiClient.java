@@ -2,14 +2,15 @@ package mybabycare.api.integration.vaccination;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -70,7 +71,7 @@ public class VaccinationApiClient {
             }
 
             return periods;
-        } catch (RuntimeException exception) {
+        } catch (IOException exception) {
             throw new IllegalStateException("Failed to parse vaccination api response", exception);
         }
     }
