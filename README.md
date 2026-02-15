@@ -14,6 +14,11 @@ mybabycare.api
 │   ├── controller
 │   ├── dto
 │   └── service
+├── integration
+│   ├── config
+│   ├── email
+│   ├── slack
+│   └── vaccination
 └── parent
     ├── controller
     ├── dto
@@ -33,3 +38,9 @@ mybabycare.api
 - `GET /v1/parents/{parentId}`
 - `PATCH /v1/parents/{parentId}`
 - `DELETE /v1/parents/{parentId}`
+
+### 외부 연동 클라이언트
+
+- `SlackClient`: Slack 메시지 전송 클라이언트
+- `EmailClient`: 이메일 발송 API 연동 클라이언트
+- `VaccinationApiClient`: 공공기관 예방접종 기간 조회 API 클라이언트
