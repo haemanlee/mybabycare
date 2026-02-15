@@ -14,6 +14,11 @@ mybabycare.api
 │   ├── controller
 │   ├── dto
 │   └── service
+├── integration
+│   ├── config
+│   ├── email
+│   ├── slack
+│   └── vaccination
 └── parent
     ├── controller
     ├── dto
@@ -33,3 +38,19 @@ mybabycare.api
 - `GET /v1/parents/{parentId}`
 - `PATCH /v1/parents/{parentId}`
 - `DELETE /v1/parents/{parentId}`
+
+- `GET /v1/vaccinations/periods?birthday=YYYY-MM-DD`
+
+### 외부 연동 클라이언트
+
+- `SlackClient`: Slack 메시지 전송 클라이언트
+- `EmailClient`: 이메일 발송 API 연동 클라이언트
+- `VaccinationApiClient`: 공공데이터포털(질병관리청 표준예방접종일정 조회서비스) 연동 클라이언트
+
+### 공공 API 설정
+
+`VaccinationApiClient`는 공공데이터포털 OpenAPI를 사용합니다.
+
+- 기본 엔드포인트: `https://apis.data.go.kr/1471000/NIPTimetableService/getTimetableList`
+- 필수 설정: `integration.vaccination.service-key`
+- 응답 포맷: `_type=json`
