@@ -7,15 +7,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Component
 public class VaccinationApiClient {
+
+    private static final Logger log = LoggerFactory.getLogger(VaccinationApiClient.class);
 
     private final RestTemplate restTemplate;
     private final VaccinationApiProperties properties;
@@ -41,11 +45,11 @@ public class VaccinationApiClient {
         try {
             response = restTemplate.getForEntity(uri, String.class);
         } catch (RestClientException exception) {
-            return Collections.emptyList();
+            throw new IllegalStateException("Failed to call vaccination api", exception);
         }
 
         if (!response.hasBody() || response.getBody() == null || response.getBody().isBlank()) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         try {
@@ -53,21 +57,29 @@ public class VaccinationApiClient {
             JsonNode itemNodes = root.path("response").path("body").path("items").path("item");
 
             if (itemNodes.isMissingNode() || itemNodes.isNull()) {
-                return Collections.emptyList();
+                return List.of();
             }
 
             List<VaccinationPeriodResponse> periods = new ArrayList<>();
             if (itemNodes.isArray()) {
                 for (JsonNode itemNode : itemNodes) {
-                    periods.add(toPeriod(itemNode));
+                    addPeriodIfValid(periods, itemNode);
                 }
             } else {
-                periods.add(toPeriod(itemNodes));
+                addPeriodIfValid(periods, itemNodes);
             }
 
             return periods;
-        } catch (Exception exception) {
-            return Collections.emptyList();
+        } catch (RuntimeException exception) {
+            throw new IllegalStateException("Failed to parse vaccination api response", exception);
+        }
+    }
+
+    private void addPeriodIfValid(List<VaccinationPeriodResponse> periods, JsonNode itemNode) {
+        try {
+            periods.add(toPeriod(itemNode));
+        } catch (RuntimeException exception) {
+            log.warn("Skip malformed vaccination item: {}", itemNode, exception);
         }
     }
 
@@ -84,6 +96,10 @@ public class VaccinationApiClient {
         if (value == null || value.isBlank()) {
             return null;
         }
-        return LocalDate.parse(value);
+        try {
+            return LocalDate.parse(value);
+        } catch (DateTimeParseException exception) {
+            throw new IllegalArgumentException("Invalid date format: " + value, exception);
+        }
     }
 }
