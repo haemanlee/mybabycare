@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
@@ -29,11 +30,16 @@ public class SlackClient {
         SlackApiRequest payload = new SlackApiRequest(channel, request.text());
         HttpEntity<SlackApiRequest> entity = new HttpEntity<>(payload, headers);
 
-        ResponseEntity<SlackApiResponse> response = restTemplate.postForEntity(
-                properties.baseUrl() + "/api/chat.postMessage",
-                entity,
-                SlackApiResponse.class
-        );
+        ResponseEntity<SlackApiResponse> response;
+        try {
+            response = restTemplate.postForEntity(
+                    properties.baseUrl() + "/api/chat.postMessage",
+                    entity,
+                    SlackApiResponse.class
+            );
+        } catch (RestClientException exception) {
+            return new SlackSendResult(false, null, "request_failed:" + exception.getClass().getSimpleName());
+        }
 
         SlackApiResponse body = response.getBody();
         if (body == null) {

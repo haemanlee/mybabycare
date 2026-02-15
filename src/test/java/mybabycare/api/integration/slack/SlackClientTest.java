@@ -32,4 +32,22 @@ class SlackClientTest {
         assertThat(result.messageTs()).isEqualTo("123.45");
         server.verify();
     }
+
+    @Test
+    void sendMessageWhenRequestFails() {
+        RestTemplate restTemplate = new RestTemplate();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
+        SlackClient client = new SlackClient(restTemplate, new SlackProperties("https://slack.com", "token", "#default"));
+
+        server.expect(requestTo("https://slack.com/api/chat.postMessage"))
+                .andExpect(method(POST))
+                .andRespond(org.springframework.test.web.client.response.MockRestResponseCreators.withServerError());
+
+        SlackSendResult result = client.sendMessage(new SlackMessageRequest(null, "hello"));
+
+        assertThat(result.success()).isFalse();
+        assertThat(result.error()).startsWith("request_failed:");
+        server.verify();
+    }
+
 }
